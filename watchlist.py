@@ -4,8 +4,9 @@ import argparse as _argparse
 import datetime as _dt
 import sys as _sys
 
-_sys.path.append('.')
+from source.watchlist_manager import WatchlistManager
 
+_sys.path.append('.')
 
 _DESCRIPTION_MSG = """ """
 
@@ -22,6 +23,7 @@ class MainArgParse:
         
         self._subparser_name = None
         
+        self._manager = None
         
         psr = _argparse.ArgumentParser(prog=__file__,
                                        description=_DESCRIPTION_MSG,
@@ -41,23 +43,35 @@ class MainArgParse:
             
     def apply(self):
         
-        if self._subparser_name == 'hello':
-            print("Hello World!")
+        if self._subparser_name == 'run':
+            self._manager = WatchlistManager()
+            
+            self._manager.addStock("ABC")
+            self._manager.addStock("123")
+            self._manager.addStock("UTR")
+            
+            self._manager.showStockDf()
+            
+            self._manager.removeStock("ABC")
+            self._manager.addStock("XYZ")
+            
+            self._manager.showStockDf()
+
             
     def _add_subparser(self, psr):
         
         sub = psr.add_subparsers(dest='_subparser_name',
                                  metavar='sub_commands',
                                  help='this is help')
+    
         
-        hello = sub.add_parser('hello', help='me')
+        run = sub.add_parser('run', help='runs inital command line only program')
         
-        self._sub_list = [ hello ]
+        self._sub_list = [ run ]
         
         for item in self._sub_list:
             self._add_generic_args(item)
-            
-            
+                        
     @staticmethod
     def _add_generic_args(psr):
         
