@@ -17,6 +17,7 @@ class StockInfo:
         
         self.name = ""
         self.ticker = ""
+        self.price = ""
         
     def increaseRank(self):
         

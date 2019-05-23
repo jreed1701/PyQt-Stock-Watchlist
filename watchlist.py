@@ -4,6 +4,9 @@ import argparse as _argparse
 import datetime as _dt
 import sys as _sys
 
+from PyQt5.QtWidgets import QApplication
+
+from source.watchlist_app import WatchlistApp
 from source.watchlist_manager import WatchlistManager
 
 _sys.path.append('.')
@@ -14,16 +17,21 @@ _EPILOG_MSG = '''
     Examples:
 '''
 
+_VERSION = "_alpha"
+
 class MainArgParse:
     
     def __init__(self):
         
         self._g_help = False
         self.__verbose__ = False
+        self._run_gui = False
         
         self._subparser_name = None
         
         self._manager = None
+        
+        
         
         psr = _argparse.ArgumentParser(prog=__file__,
                                        description=_DESCRIPTION_MSG,
@@ -56,6 +64,8 @@ class MainArgParse:
             self._manager.addStock("XYZ")
             
             self._manager.showStockDf()
+        elif self._subparser_name == 'gui':
+            self._run_gui = True
 
             
     def _add_subparser(self, psr):
@@ -65,9 +75,11 @@ class MainArgParse:
                                  help='this is help')
     
         
-        run = sub.add_parser('run', help='runs inital command line only program')
+        run = sub.add_parser('run', help='Runs inital command line only program.')
         
-        self._sub_list = [ run ]
+        gui = sub.add_parser('gui', help='Runs the main app user interface.')
+        
+        self._sub_list = [ run, gui ]
         
         for item in self._sub_list:
             self._add_generic_args(item)
@@ -110,3 +122,8 @@ if __name__ == '__main__':
     
     _arg = MainArgParse()
     _arg.apply()
+    
+    if _arg._run_gui is True:
+        app = QApplication(_sys.argv)
+        ex = WatchlistApp(_VERSION)
+        _sys.exit(app.exec_())

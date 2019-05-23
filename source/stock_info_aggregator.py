@@ -16,5 +16,6 @@ class StockInfoAggregator:
         
         self._stock_info.ticker = ticker
         self._stock_info.name = "ABC Company"
+        self._stock_info.price = "$4.25"
         
         return copy.copy(self._stock_info)
