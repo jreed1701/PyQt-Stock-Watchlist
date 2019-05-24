@@ -12,6 +12,12 @@ class WatchlistAppTableWidget(QWidget):
             
             self._manager = manager
             
+            #for testing
+            self._manager.addStock("ABC")
+            self._manager.addStock("123")
+            self._manager.addStock("XYZ")
+            self._manager.addStock("456")
+            
             self._selected_row = 0
             
             self.initUi()
@@ -68,6 +74,8 @@ class WatchlistAppTableWidget(QWidget):
             
             self.add.clicked.connect(self.addStock)
             self.remove.clicked.connect(self.removeStock)
+            self.promote.clicked.connect(self.promoteStock)
+            self.demote.clicked.connect(self.demoteStock)
             self.table1.clicked.connect(self.selectRow)
             self.table2.clicked.connect(self.selectRow)
 
@@ -78,12 +86,7 @@ class WatchlistAppTableWidget(QWidget):
             
             self.setLayout(self.layout)
             
-        @pyqtSlot()
-        def selectRow(self):
-            
-            for item in self.table1.selectedItems():
-                self._selected_row = item.row()
-            
+            self.updateTable()
             
         @pyqtSlot()
         def addStock(self):
@@ -103,9 +106,10 @@ class WatchlistAppTableWidget(QWidget):
         def removeStock(self):
             print("Removing a stock")
             
-            #get ticker. Always first col
+            #get ticker.
             try:
-                ticker = self.table1.itemAt(self._selected_row,0).text()
+                ticker = self.table1.item(self._selected_row,0).text()
+                #print('Ticker: %s, selected row: %d' % (ticker, self._selected_row))
             except AttributeError:
                 print("Error: Select a table row first!")
                 return
@@ -114,9 +118,50 @@ class WatchlistAppTableWidget(QWidget):
             
             self.updateTable()
             
+        @pyqtSlot()
+        def promoteStock(self):
+            print("Promoting this stock")
+            
+            #get ticker.
+            try:
+                ticker = self.table1.item(self._selected_row,0).text()
+                #print('Ticker: %s, selected row: %d' % (ticker, self._selected_row))
+            except AttributeError:
+                print("Error: Select a table row first!")
+                return
+            
+            self._manager.promoteStock(ticker)
+            
+            self.updateTable()
+            
+        @pyqtSlot()
+        def demoteStock(self):
+            print("Demoting this stock")
+            
+            #get ticker.
+            try:
+                ticker = self.table1.item(self._selected_row,0).text()
+                #print('Ticker: %s, selected row: %d' % (ticker, self._selected_row))
+            except AttributeError:
+                print("Error: Select a table row first!")
+                return
+            
+            self._manager.demoteStock(ticker)
+            
+            self.updateTable()
+        
+        @pyqtSlot()
+        def selectRow(self):
+            
+            for item in self.table1.selectedItems():
+                self._selected_row = item.row()    
+            
         def updateTable(self):
             
             df = self._manager.buildDataFrame()
+            
+            #if df.empty:
+            #    return
                         
             # Add one extra because the dataframe index is not counted as a
             # columns but on the table it will be
@@ -135,5 +180,4 @@ class WatchlistAppTableWidget(QWidget):
             
             for r in range(0, num_rows):
                 for c in range(0, num_cols):
-                    #print("r: %d c %d" % (r,c))
                     self.table1.setItem(r,c, QTableWidgetItem(df.iloc[r,c]))

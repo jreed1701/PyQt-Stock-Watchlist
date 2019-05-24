@@ -51,7 +51,7 @@ class MainArgParse:
             
     def apply(self):
         
-        if self._subparser_name == 'run':
+        if self._subparser_name == 'test':
             self._manager = WatchlistManager()
             
             self._manager.addStock("ABC")
@@ -75,11 +75,11 @@ class MainArgParse:
                                  help='this is help')
     
         
-        run = sub.add_parser('run', help='Runs inital command line only program.')
+        test = sub.add_parser('test', help='Runs inital command line only program.')
         
         gui = sub.add_parser('gui', help='Runs the main app user interface.')
         
-        self._sub_list = [ run, gui ]
+        self._sub_list = [ test, gui ]
         
         for item in self._sub_list:
             self._add_generic_args(item)

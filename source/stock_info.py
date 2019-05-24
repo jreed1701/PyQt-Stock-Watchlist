@@ -27,11 +27,11 @@ class StockInfo:
         
     def increaseRank(self):
         
-        self._rank = self._rank + 1
+        self._rank = self._rank - 1
         
     def decreaseRank(self):
         
-        self._rank = self._rank - 1
+        self._rank = self._rank + 1
         
         if self._rank < 0:
             self._rank = 0
@@ -40,6 +40,7 @@ class StockInfo:
             
         stock_info = {
                 'ticker' : self.ticker,
+                 'rank'   : str(self._rank),
                 'name'   : self.name,
                 'price'  : self.price
             }

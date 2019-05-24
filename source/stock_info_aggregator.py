@@ -8,8 +8,6 @@ class StockInfoAggregator:
     
     def __init__(self):
         
-        print(' The aggregator is instantiated')
-        
         self._stock_info = StockInfo()
         
     def  getStockInfo(self, ticker):

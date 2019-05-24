@@ -7,8 +7,6 @@ class WatchlistManager:
     
     def __init__(self):
         
-        print('Created Watchlist Manager')
-        
         self.watchlist = dict()
         
         self.aggregator = StockInfoAggregator()
@@ -30,7 +28,7 @@ class WatchlistManager:
                 stock.setRank(1)
             else:
                 #otherwise it's added as the lowest ranking stock by defualt
-                size = len(self.watchlist)
+                size = len(self.watchlist) + 1
                 stock.setRank(size)
             
             self.watchlist[ticker] = stock
@@ -42,6 +40,51 @@ class WatchlistManager:
         else:
             del self.watchlist[ticker]
             
+    def promoteStock(self, ticker):
+        
+        #print('Ticker pass to promotStock: %s' % ticker)
+        #print('Stocks in watchlist: %s' % self.watchlist.keys())
+        
+        if ticker not in self.watchlist.keys():
+            print('Error: That stock is not in the list!')
+        else:
+            cur_stock = self.watchlist[ticker]
+            cur_rank = cur_stock.getRank()
+            
+           # print('Rank of stock: %s' % cur_stock.getRank())
+            
+            if( cur_rank == 1):
+                print('Error: That stock is already at the top!')
+                return
+            
+            #Find the stock with rank - 1 and swap.
+            for stock in self.watchlist.keys():
+                if self.watchlist[stock].getRank() == cur_rank - 1:
+                    #print('Stock that was above %s: is %s' %(ticker, stock))
+                    self.watchlist[stock].decreaseRank()
+                    
+            cur_stock.increaseRank()
+            
+    def demoteStock(self, ticker):
+                    
+        if ticker not in self.watchlist.keys():
+            print('Error: That stock is not in the list!')
+        else:
+            cur_stock = self.watchlist[ticker]
+            cur_rank = cur_stock.getRank()
+            
+        if( cur_rank == len(self.watchlist.keys())):
+            print('Error: That stock is already lowest ranking stock!')
+            return
+        
+        # Find the stock with rank +1 and swap
+        for stock in self.watchlist.keys():
+            if self.watchlist[stock].getRank() == cur_rank + 1:
+                #print('Stock that was above %s: is %s' %(ticker, stock))
+                self.watchlist[stock].increaseRank()
+                
+        cur_stock.decreaseRank()
+            
     def buildDataFrame(self):
         
         df = pd.DataFrame()
@@ -51,6 +94,7 @@ class WatchlistManager:
             df = df.append(self.watchlist[key].getDataFrame())
         
         #df = df.set_index('ticker')
+        df = df.sort_values(by=['rank'], ascending=True)
         
         return df
         
