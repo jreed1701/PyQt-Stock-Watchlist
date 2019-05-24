@@ -19,6 +19,12 @@ class StockInfo:
         self.ticker = ""
         self.price = ""
         
+    def setRank(self, rank):
+        self._rank = rank
+        
+    def getRank(self):
+        return self._rank
+        
     def increaseRank(self):
         
         self._rank = self._rank + 1
@@ -34,12 +40,13 @@ class StockInfo:
             
         stock_info = {
                 'ticker' : self.ticker,
-                'name'   : self.name
+                'name'   : self.name,
+                'price'  : self.price
             }
         
         df = pd.DataFrame(data=stock_info, index=[0])
         
-        df.set_index('ticker')
+        #df.set_index('ticker')
         
         return df
     

@@ -1,15 +1,24 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtWidgets import QTableWidget, QTabWidget, QWidget, QVBoxLayout
-
-from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QTableWidget, QTabWidget, QWidget, QVBoxLayout, \
+QHBoxLayout, QPushButton, QLabel, QLineEdit, QSplitter, QTableWidgetItem
+from PyQt5.QtCore import Qt, pyqtSlot
 
 class WatchlistAppTableWidget(QWidget):
     
-        def __init__(self, parent):
+        def __init__(self, parent, manager):
             
             super(QWidget, self).__init__(parent)
-            self.layout = QVBoxLayout(self)
+            
+            self._manager = manager
+            
+            self._selected_row = 0
+            
+            self.initUi()
+            
+        def initUi(self):
+            
+            self.layout = QHBoxLayout()
             
             self.tabs = QTabWidget()
             
@@ -18,17 +27,7 @@ class WatchlistAppTableWidget(QWidget):
             
             self.table1 = QTableWidget()
             self.table2 = QTableWidget()
-            
-            self.table1.setRowCount(4)
-            self.table1.setColumnCount(10)
-            
-            self.table2.setRowCount(4)
-            self.table2.setColumnCount(10)
-            
-            #header = self.table1.horizontalHeader()
-            #header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)       
-            #header.setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
-            
+                        
             self.tab1.layout = QVBoxLayout()
             self.tab1.layout.addWidget(self.table1)
             self.tab1.setLayout(self.tab1.layout)
@@ -41,4 +40,100 @@ class WatchlistAppTableWidget(QWidget):
             self.tabs.addTab(self.tab2, "Info 2")
             
             self.layout.addWidget(self.tabs)
+            
+            self.action_layout = QVBoxLayout()
+
+            label = QLabel()
+            label.setText("Stock Ticker")
+            self.action_layout.addWidget(label)
+            
+            self.ticker_textbox = QLineEdit()
+            self.action_layout.addWidget(self.ticker_textbox)
+            
+            self.add = QPushButton("Add Stock")
+            self.remove = QPushButton("Remove Stock")
+            self.promote = QPushButton("Promote Stock")
+            self.demote = QPushButton("Demote Stock")
+            self.save = QPushButton("Save")
+            
+            self.action_layout.addWidget(self.add)
+            self.action_layout.addWidget(self.remove)
+            self.action_layout.addWidget(self.promote)
+            self.action_layout.addWidget(self.demote)
+            self.action_layout.addWidget(self.save)
+                     
+            self.action_layout.setAlignment(Qt.AlignTop)
+            
+            # Make Callbacks
+            
+            self.add.clicked.connect(self.addStock)
+            self.remove.clicked.connect(self.removeStock)
+            self.table1.clicked.connect(self.selectRow)
+            self.table2.clicked.connect(self.selectRow)
+
+            vsplitter = QSplitter(Qt.Vertical)            
+            self.layout.addWidget(vsplitter)
+            
+            self.layout.addLayout(self.action_layout)
+            
             self.setLayout(self.layout)
+            
+        @pyqtSlot()
+        def selectRow(self):
+            
+            for item in self.table1.selectedItems():
+                self._selected_row = item.row()
+            
+            
+        @pyqtSlot()
+        def addStock(self):
+            print("Adding a stock")
+            
+            ticker = self.ticker_textbox.text()
+            
+            if ticker == "":
+                print("Error: This field is empty")
+                return
+            else:
+                self._manager.addStock(ticker)
+                
+            self.updateTable()
+            
+        @pyqtSlot()
+        def removeStock(self):
+            print("Removing a stock")
+            
+            #get ticker. Always first col
+            try:
+                ticker = self.table1.itemAt(self._selected_row,0).text()
+            except AttributeError:
+                print("Error: Select a table row first!")
+                return
+            
+            self._manager.removeStock(ticker)
+            
+            self.updateTable()
+            
+        def updateTable(self):
+            
+            df = self._manager.buildDataFrame()
+                        
+            # Add one extra because the dataframe index is not counted as a
+            # columns but on the table it will be
+            num_cols = len(df.columns) 
+            num_rows = len(df.index)
+        
+            self.table1.setRowCount(num_rows)
+            self.table1.setColumnCount(num_cols)
+            
+            self.table2.setRowCount(num_rows)
+            self.table2.setColumnCount(num_cols)
+            
+            labels = df.columns.tolist()
+            
+            self.table1.setHorizontalHeaderLabels(labels)
+            
+            for r in range(0, num_rows):
+                for c in range(0, num_cols):
+                    #print("r: %d c %d" % (r,c))
+                    self.table1.setItem(r,c, QTableWidgetItem(df.iloc[r,c]))

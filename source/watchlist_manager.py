@@ -21,7 +21,19 @@ class WatchlistManager:
         if ticker in self.watchlist.keys():
             print('Error: That item is already in the list')
         else:
-            self.watchlist[ticker] = self.aggregator.getStockInfo(ticker)
+            
+            stock = self.aggregator.getStockInfo(ticker)
+            
+            #If this dicionary is empty this is the first stock and it by
+            # default is the highest ranking stock. 
+            if self.watchlist == {}:
+                stock.setRank(1)
+            else:
+                #otherwise it's added as the lowest ranking stock by defualt
+                size = len(self.watchlist)
+                stock.setRank(size)
+            
+            self.watchlist[ticker] = stock
             
     def removeStock(self, ticker):
         
@@ -38,7 +50,7 @@ class WatchlistManager:
             
             df = df.append(self.watchlist[key].getDataFrame())
         
-        df = df.set_index('ticker')
+        #df = df.set_index('ticker')
         
         return df
         
