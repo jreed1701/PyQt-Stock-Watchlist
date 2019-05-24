@@ -40,6 +40,11 @@ class WatchlistManager:
         else:
             del self.watchlist[ticker]
             
+            new_rank = 1
+            for i in self.watchlist.keys():
+                self.watchlist[i].setRank(new_rank)
+                new_rank = new_rank + 1
+            
     def promoteStock(self, ticker):
         
         #print('Ticker pass to promotStock: %s' % ticker)
