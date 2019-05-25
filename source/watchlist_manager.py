@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
+import os
 import pandas as pd
+from sqlalchemy import create_engine
 
 from source.stock_info_aggregator import StockInfoAggregator
+
+_TABLE_NAME = 'watchlist'
+_DB_NAME = 'watchlist.db'
 
 class WatchlistManager:
     
@@ -9,10 +14,31 @@ class WatchlistManager:
         
         self.watchlist = dict()
         
-        self.aggregator = StockInfoAggregator()
+        self._aggregator = StockInfoAggregator()
+        
+        database = 'sqlite:///%s' % _DB_NAME
+        
+        self._engine = create_engine(database, echo=False)
+        
+        exists = os.path.isfile(_DB_NAME)
+                                
+        if exists is True:
+            self.loadFromDatabase(_DB_NAME)
         
     #def updateStockInfo():
-        #Loop   
+        #Loop  
+        
+    def addStockByRank(self, ticker, rank):
+        
+        if ticker in self.watchlist.keys():
+            print('Error: That item is already in the list')
+        else:
+            
+            stock = self._aggregator.getStockInfo(ticker)
+            
+            stock.setRank(rank)
+            
+            self.watchlist[ticker] = stock
         
     def addStock(self, ticker):
         
@@ -20,7 +46,7 @@ class WatchlistManager:
             print('Error: That item is already in the list')
         else:
             
-            stock = self.aggregator.getStockInfo(ticker)
+            stock = self._aggregator.getStockInfo(ticker)
             
             #If this dicionary is empty this is the first stock and it by
             # default is the highest ranking stock. 
@@ -89,8 +115,27 @@ class WatchlistManager:
                 self.watchlist[stock].increaseRank()
                 
         cur_stock.decreaseRank()
+        
+    def saveToDatabase(self):
+        
+        df = self.buildDataFrame()
+        
+        df.to_sql(name=_TABLE_NAME, con=self._engine, if_exists='replace')
+        
+    def loadFromDatabase(self, dbname):
+        
+        df = pd.read_sql_table(table_name=_TABLE_NAME, con=self._engine, index_col='index')
+                
+        # regenerate watchlist dictionary of key ticker and value StockInfo
+        # doing this way only need ticker and rank because the aggregator 
+        # would have to go get up to date info anyway.
+        for index, row in df.head().iterrows():
+            self.addStockByRank(row['ticker'], int(row['rank']))
             
     def buildDataFrame(self):
+        
+        if len(self.watchlist.keys()) == 0:
+            return
         
         df = pd.DataFrame()
         
@@ -98,7 +143,6 @@ class WatchlistManager:
             
             df = df.append(self.watchlist[key].getDataFrame())
         
-        #df = df.set_index('ticker')
         df = df.sort_values(by=['rank'], ascending=True)
         
         return df

@@ -11,13 +11,7 @@ class WatchlistAppTableWidget(QWidget):
             super(QWidget, self).__init__(parent)
             
             self._manager = manager
-            
-            #for testing
-            self._manager.addStock("ABC")
-            self._manager.addStock("123")
-            self._manager.addStock("XYZ")
-            self._manager.addStock("456")
-            
+                        
             self._selected_row = 0
             
             self.initUi()
@@ -61,12 +55,14 @@ class WatchlistAppTableWidget(QWidget):
             self.promote = QPushButton("Promote Stock")
             self.demote = QPushButton("Demote Stock")
             self.save = QPushButton("Save")
+            self.load = QPushButton("Load")
             
             self.action_layout.addWidget(self.add)
             self.action_layout.addWidget(self.remove)
             self.action_layout.addWidget(self.promote)
             self.action_layout.addWidget(self.demote)
             self.action_layout.addWidget(self.save)
+            self.action_layout.addWidget(self.load)
                      
             self.action_layout.setAlignment(Qt.AlignTop)
             
@@ -76,6 +72,8 @@ class WatchlistAppTableWidget(QWidget):
             self.remove.clicked.connect(self.removeStock)
             self.promote.clicked.connect(self.promoteStock)
             self.demote.clicked.connect(self.demoteStock)
+            self.save.clicked.connect(self.saveWatchlist)
+            self.load.clicked.connect(self.loadWatchlist)
             self.table1.clicked.connect(self.selectRow)
             self.table2.clicked.connect(self.selectRow)
 
@@ -151,6 +149,18 @@ class WatchlistAppTableWidget(QWidget):
             self.updateTable()
         
         @pyqtSlot()
+        def loadWatchlist(self):
+            print('Testing load feature')
+            self._manager.loadFromDatabase('watchlist.db')
+            
+            self.updateTable()
+        
+        @pyqtSlot() 
+        def saveWatchlist(self):
+            print("Saving table...")
+            self._manager.saveToDatabase()
+        
+        @pyqtSlot()
         def selectRow(self):
             
             for item in self.table1.selectedItems():
@@ -159,9 +169,14 @@ class WatchlistAppTableWidget(QWidget):
         def updateTable(self):
             
             df = self._manager.buildDataFrame()
-            
-            #if df.empty:
-            #    return
+
+            if df is None:              
+                self.table1.setRowCount(0)
+                self.table1.setColumnCount(0)
+                
+                self.table2.setRowCount(0)
+                self.table2.setColumnCount(0)
+                return
                         
             # Add one extra because the dataframe index is not counted as a
             # columns but on the table it will be
