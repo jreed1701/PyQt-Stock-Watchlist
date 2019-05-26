@@ -118,21 +118,25 @@ class WatchlistManager:
         
     def saveToDatabase(self):
         
-        df = self.buildDataFrame()
+        df1 = self.buildDataFrame1()
+        df2 = self.buildDataFrame2()
         
-        df.to_sql(name=self._wg._TABLE_NAME, con=self._engine, if_exists='replace')
+        df1.to_sql(name=self._wg._TABLE1_NAME, con=self._engine, if_exists='replace')
+        df2.to_sql(name=self._wg._TABLE2_NAME, con=self._engine, if_exists='replace')
         
     def loadFromDatabase(self, dbname):
         
-        df = pd.read_sql_table(table_name=self._wg._TABLE_NAME, con=self._engine, index_col='index')
+        # Only need one table for this because the info is dynamic.
+        # Later if time history is of interest. Do both
+        df = pd.read_sql_table(table_name=self._wg._TABLE1_NAME, con=self._engine, index_col='index')
                 
         # regenerate watchlist dictionary of key ticker and value StockInfo
         # doing this way only need ticker and rank because the aggregator 
         # would have to go get up to date info anyway.
         for index, row in df.head().iterrows():
-            self.addStockByRank(row['ticker'], int(row['rank']))
+            self.addStockByRank(row['Ticker'], int(row['Rank']))
             
-    def buildDataFrame(self):
+    def buildDataFrame1(self):
         
         if len(self.watchlist.keys()) == 0:
             return
@@ -141,9 +145,24 @@ class WatchlistManager:
         
         for key in self.watchlist.keys():
             
-            df = df.append(self.watchlist[key].getDataFrame())
+            df = df.append(self.watchlist[key].getDataFrame1())
         
-        df = df.sort_values(by=['rank'], ascending=True)
+        df = df.sort_values(by=['Rank'], ascending=True)
+        
+        return df
+    
+    def buildDataFrame2(self):
+        
+        if len(self.watchlist.keys()) == 0:
+            return
+        
+        df = pd.DataFrame()
+        
+        for key in self.watchlist.keys():
+            
+            df = df.append(self.watchlist[key].getDataFrame2())
+        
+        df = df.sort_values(by=['Rank'], ascending=True)
         
         return df
         
@@ -157,6 +176,11 @@ class WatchlistManager:
             print(self.watchlist[item])
             
     def showStockDf(self):
-        df = self.buildDataFrame()
-        print(df)
+        print('Dataframe 1')
+        df1 = self.buildDataFrame1()
+        print(df1)
+        
+        print('Dataframe 2')
+        df2 = self.buildDataFrame2()
+        print(df2)
             

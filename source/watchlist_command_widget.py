@@ -3,7 +3,7 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QInputDialog, QLineEdit
 from PyQt5.QtCore import Qt, pyqtSlot
 
-from source.watchlist_globals import *
+from source.watchlist_globals import WatchlistGlobals
 
 class WatchlistCommandWidget(QWidget):
     
@@ -95,12 +95,7 @@ class WatchlistCommandWidget(QWidget):
         self.setLayout(self.layout)
         
     @pyqtSlot()
-    def promoteStock(self):
-        print("Promote button is working!")
-        
-    @pyqtSlot()
     def addStock(self):
-        print("Add button is working!")
         ticker, okPressed = QInputDialog.getText(self, 
                                                "Add a stock","Ticker:", 
                                                QLineEdit.Normal, 
@@ -133,7 +128,6 @@ class WatchlistCommandWidget(QWidget):
 
     @pyqtSlot()
     def promoteStock(self):
-        print("Promoting this stock")
         
         #get ticker.
         try:
@@ -149,7 +143,6 @@ class WatchlistCommandWidget(QWidget):
         
     @pyqtSlot()
     def demoteStock(self):
-        print("Demoting this stock")
         
         #get ticker.
         try:
@@ -165,12 +158,10 @@ class WatchlistCommandWidget(QWidget):
     
     @pyqtSlot() 
     def saveSheet(self):
-        print("Saving table...")
         self._manager.saveToDatabase()
     
     @pyqtSlot()
     def loadSheet(self):
-        print('Testing load feature')
         self._manager.loadFromDatabase(self._wg._DB_NAME)
         
         self._tw.updateTable()

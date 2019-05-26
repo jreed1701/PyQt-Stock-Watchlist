@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5.QtWidgets import QTableWidget, QTabWidget, QWidget, QVBoxLayout, \
-QHBoxLayout, QPushButton, QLabel, QLineEdit, QSplitter, QTableWidgetItem
-from PyQt5.QtCore import Qt, pyqtSlot
+QTableWidgetItem, QAbstractScrollArea
+QAbstractScrollArea
+from PyQt5.QtCore import pyqtSlot
 
 class WatchlistTableWidget(QWidget):
     
@@ -36,13 +37,16 @@ class WatchlistTableWidget(QWidget):
             self.tab2.layout.addWidget(self.table2)
             self.tab2.setLayout(self.tab2.layout)
             
-            self.tabs.addTab(self.tab1, "Info 1")
-            self.tabs.addTab(self.tab2, "Info 2")
+            self.tabs.addTab(self.tab1, "Fundamentals")
+            self.tabs.addTab(self.tab2, "Technicals")
             
             self.layout.addWidget(self.tabs)
             
             self.table1.clicked.connect(self.selectRow)
             self.table2.clicked.connect(self.selectRow)
+            
+            self.table1.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+            self.table2.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
             
             self.setLayout(self.layout)
             
@@ -65,31 +69,43 @@ class WatchlistTableWidget(QWidget):
             
         def updateTable(self):
             
-            df = self._manager.buildDataFrame()
+            df1 = self._manager.buildDataFrame1()
+            df2 = self._manager.buildDataFrame2()
 
-            if df is None:              
+            if df1 is None or df2 is None:              
                 self.table1.setRowCount(0)
                 self.table1.setColumnCount(0)
                 
                 self.table2.setRowCount(0)
                 self.table2.setColumnCount(0)
                 return
-                        
-            # Add one extra because the dataframe index is not counted as a
-            # columns but on the table it will be
-            num_cols = len(df.columns) 
-            num_rows = len(df.index)
+                                   
+            num_cols1 = len(df1.columns) 
+            num_rows1 = len(df1.index)
+            
+            num_cols2 = len(df2.columns) 
+            num_rows2 = len(df2.index)
+
         
-            self.table1.setRowCount(num_rows)
-            self.table1.setColumnCount(num_cols)
+            self.table1.setRowCount(num_rows1)
+            self.table1.setColumnCount(num_cols1)
             
-            self.table2.setRowCount(num_rows)
-            self.table2.setColumnCount(num_cols)
+            self.table2.setRowCount(num_rows2)
+            self.table2.setColumnCount(num_cols2)
             
-            labels = df.columns.tolist()
+            labels1 = df1.columns.tolist()
+            self.table1.setHorizontalHeaderLabels(labels1)
+
+            labels2 = df2.columns.tolist()
+            self.table2.setHorizontalHeaderLabels(labels2)
             
-            self.table1.setHorizontalHeaderLabels(labels)
+            for r in range(0, num_rows1):
+                for c in range(0, num_cols1):
+                    self.table1.setItem(r,c, QTableWidgetItem(df1.iloc[r,c]))
             
-            for r in range(0, num_rows):
-                for c in range(0, num_cols):
-                    self.table1.setItem(r,c, QTableWidgetItem(df.iloc[r,c]))
+            for r in range(0, num_rows2):
+                for c in range(0, num_cols2):
+                    self.table2.setItem(r,c, QTableWidgetItem(df2.iloc[r,c]))
+            
+            self.table1.resizeColumnsToContents()
+            self.table2.resizeColumnsToContents()

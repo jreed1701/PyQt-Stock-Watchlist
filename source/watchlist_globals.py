@@ -12,5 +12,6 @@ class WatchlistGlobals:
         
         self._VERSION = "_alpha"
         
-        self._TABLE_NAME = 'watchlist'
+        self._TABLE1_NAME = 'fundamentals'
+        self._TABLE2_NAME = 'technicals'
         self._DB_NAME = 'watchlist.db'
