@@ -3,11 +3,19 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QInputDialog, QLineEdit
 from PyQt5.QtCore import Qt, pyqtSlot
 
+from source.watchlist_globals import *
+
 class WatchlistCommandWidget(QWidget):
     
-    def __init__(self, parent):
+    def __init__(self, parent, manager, table_widget):
         
         super(QWidget, self).__init__(parent)
+        
+        self._wg = WatchlistGlobals()
+        
+        self._manager = manager
+        
+        self._tw = table_widget
         
         self.initUI()
         
@@ -82,7 +90,7 @@ class WatchlistCommandWidget(QWidget):
         self.layout.addWidget(save_button)
         self.layout.addWidget(load_button)
         
-        self.layout.setAlignment(Qt.AlignCenter)
+        self.layout.setAlignment(Qt.AlignTop)
         
         self.setLayout(self.layout)
         
@@ -93,30 +101,76 @@ class WatchlistCommandWidget(QWidget):
     @pyqtSlot()
     def addStock(self):
         print("Add button is working!")
-        text, okPressed = QInputDialog.getText(self, "Add a stock","Ticker:", QLineEdit.Normal, "")
-        if okPressed and text != '':
-            print(text)
+        ticker, okPressed = QInputDialog.getText(self, 
+                                               "Add a stock","Ticker:", 
+                                               QLineEdit.Normal, 
+                                               "")
         
+        if okPressed and ticker == '':
+            print("Error: This field is empty")
+            return
+        elif okPressed and ticker != '':
+            self._manager.addStock(ticker)
+            
+        self._tw.updateTable()
+            
     @pyqtSlot()
     def removeStock(self):
-        print("Remove button is working!")
+        print("Removing a stock")
+        
+        #get ticker.
+        try:
+            ticker = self._tw.getTable1().item(self._tw.getSelectedRow(),0).text()
+            #print('Ticker: %s, selected row: %d' % (ticker, self._selected_row))
+        except AttributeError:
+            print("Error: Select a table row first!")
+            return
+        
+        self._manager.removeStock(ticker)
+        
+        self._tw.updateTable()
+
+
+    @pyqtSlot()
+    def promoteStock(self):
+        print("Promoting this stock")
+        
+        #get ticker.
+        try:
+            ticker = self._tw.getTable1().item(self._tw.getSelectedRow(),0).text()
+            #print('Ticker: %s, selected row: %d' % (ticker, self._selected_row))
+        except AttributeError:
+            print("Error: Select a table row first!")
+            return
+        
+        self._manager.promoteStock(ticker)
+        
+        self._tw.updateTable()
         
     @pyqtSlot()
     def demoteStock(self):
-        print("Demote button is working!")
+        print("Demoting this stock")
         
-    @pyqtSlot()
+        #get ticker.
+        try:
+            ticker = self._tw.getTable1().item(self._tw.getSelectedRow(),0).text()
+            #print('Ticker: %s, selected row: %d' % (ticker, self._selected_row))
+        except AttributeError:
+            print("Error: Select a table row first!")
+            return
+        
+        self._manager.demoteStock(ticker)
+        
+        self._tw.updateTable()
+    
+    @pyqtSlot() 
     def saveSheet(self):
-        print("Save button is working!")
+        print("Saving table...")
+        self._manager.saveToDatabase()
     
     @pyqtSlot()
     def loadSheet(self):
-        print("Load button is working!")
+        print('Testing load feature')
+        self._manager.loadFromDatabase(self._wg._DB_NAME)
         
-        
-"""
-                                   border-top: 10px transparent;  \
-                                     border-bottom: 10px transparent; \
-                                     border-right: 10px transparent; \
-                                     border-left: 10px transparent;  \
-"""
+        self._tw.updateTable()

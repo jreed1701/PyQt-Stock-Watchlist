@@ -4,26 +4,26 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 from source.stock_info_aggregator import StockInfoAggregator
-
-_TABLE_NAME = 'watchlist'
-_DB_NAME = 'watchlist.db'
+from source.watchlist_globals import WatchlistGlobals
 
 class WatchlistManager:
     
     def __init__(self):
         
+        self._wg = WatchlistGlobals()
+        
         self.watchlist = dict()
         
         self._aggregator = StockInfoAggregator()
         
-        database = 'sqlite:///%s' % _DB_NAME
+        database = 'sqlite:///%s' % self._wg._DB_NAME
         
         self._engine = create_engine(database, echo=False)
         
-        exists = os.path.isfile(_DB_NAME)
+        exists = os.path.isfile(self._wg._DB_NAME)
                                 
         if exists is True:
-            self.loadFromDatabase(_DB_NAME)
+            self.loadFromDatabase(self._wg._DB_NAME)
         
     #def updateStockInfo():
         #Loop  
@@ -120,11 +120,11 @@ class WatchlistManager:
         
         df = self.buildDataFrame()
         
-        df.to_sql(name=_TABLE_NAME, con=self._engine, if_exists='replace')
+        df.to_sql(name=self._wg._TABLE_NAME, con=self._engine, if_exists='replace')
         
     def loadFromDatabase(self, dbname):
         
-        df = pd.read_sql_table(table_name=_TABLE_NAME, con=self._engine, index_col='index')
+        df = pd.read_sql_table(table_name=self._wg._TABLE_NAME, con=self._engine, index_col='index')
                 
         # regenerate watchlist dictionary of key ticker and value StockInfo
         # doing this way only need ticker and rank because the aggregator 

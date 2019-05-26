@@ -7,17 +7,10 @@ import sys as _sys
 from PyQt5.QtWidgets import QApplication
 
 from source.watchlist_app import WatchlistApp
+from source.watchlist_globals import WatchlistGlobals 
 from source.watchlist_manager import WatchlistManager
 
 _sys.path.append('.')
-
-_DESCRIPTION_MSG = """ """
-
-_EPILOG_MSG = '''
-    Examples:
-'''
-
-_VERSION = "_alpha"
 
 class MainArgParse:
     
@@ -31,11 +24,11 @@ class MainArgParse:
         
         self._manager = None
         
-        
+        self._wg = WatchlistGlobals()
         
         psr = _argparse.ArgumentParser(prog=__file__,
-                                       description=_DESCRIPTION_MSG,
-                                       epilog=_EPILOG_MSG,
+                                       description=self._wg._DESCRIPTION_MSG,
+                                       epilog=self._wg._EPILOG_MSG,
                                        formatter_class=_argparse.RawTextHelpFormatter)
         
         self._add_generic_args(psr)
@@ -118,6 +111,8 @@ if __name__ == '__main__':
     Main script entry point
     """
     
+    _wg = WatchlistGlobals()
+    
     _tb = _dt.datetime.now()
     
     _arg = MainArgParse()
@@ -125,5 +120,5 @@ if __name__ == '__main__':
     
     if _arg._run_gui is True:
         app = QApplication(_sys.argv)
-        ex = WatchlistApp(_VERSION)
+        ex = WatchlistApp(_wg._VERSION)
         _sys.exit(app.exec_())
