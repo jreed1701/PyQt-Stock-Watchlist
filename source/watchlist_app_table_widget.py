@@ -4,6 +4,8 @@ from PyQt5.QtWidgets import QTableWidget, QTabWidget, QWidget, QVBoxLayout, \
 QHBoxLayout, QPushButton, QLabel, QLineEdit, QSplitter, QTableWidgetItem
 from PyQt5.QtCore import Qt, pyqtSlot
 
+from source.watchlist_command_widget import WatchlistCommandWidget
+
 class WatchlistAppTableWidget(QWidget):
     
         def __init__(self, parent, manager):
@@ -14,11 +16,15 @@ class WatchlistAppTableWidget(QWidget):
                         
             self._selected_row = 0
             
+            self._cw = WatchlistCommandWidget(parent)
+            
             self.initUi()
             
         def initUi(self):
             
             self.layout = QHBoxLayout()
+            
+            self.layout.addWidget(self._cw)
             
             self.tabs = QTabWidget()
             
