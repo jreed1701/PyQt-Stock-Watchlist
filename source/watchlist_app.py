@@ -1,9 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow, QHBoxLayout, QAction, QLayout, QWidget
 from PyQt5.QtGui import QIcon
 
-#from win32gui import SetWindowPos
-#import win32con
-
 from source.watchlist_manager import WatchlistManager
 from source.watchlist_command_widget import WatchlistCommandWidget
 from source.watchlist_globals import WatchlistGlobals as wg
@@ -31,21 +28,6 @@ class WatchlistApp(QMainWindow):
         
         self.setGeometry(self.left, self.top, self.width, self.height)
                 
-        # = always on top. only reliable way to bring it to the front on windows
-        """
-        SetWindowPos(self.winId(),
-            win32con.HWND_TOPMOST,
-            0, 0, 0, 0,
-            win32con.SWP_NOMOVE | win32con.SWP_NOSIZE | win32con.SWP_SHOWWINDOW)
-        # disable the always on top, but leave window at its top position
-        SetWindowPos(self.winId(),
-            win32con.HWND_NOTOPMOST, 
-            0, 0, 0, 0,
-            win32con.SWP_NOMOVE | win32con.SWP_NOSIZE | win32con.SWP_SHOWWINDOW)
-    
-        self.raise_()
-        """
-        
         mainMenu = self.menuBar()
         fileMenu = mainMenu.addMenu('File')
         
