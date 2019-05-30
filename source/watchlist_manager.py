@@ -82,7 +82,7 @@ class WatchlistManager:
             cur_stock = self.watchlist[ticker]
             cur_rank = cur_stock.getRank()
             
-           # print('Rank of stock: %s' % cur_stock.getRank())
+            # print('Rank of stock: %s' % cur_stock.getRank())
             
             if( cur_rank == 1):
                 print('Error: That stock is already at the top!')
@@ -126,9 +126,16 @@ class WatchlistManager:
         
     def loadFromDatabase(self, dbname):
         
+        if self._engine is None:
+            print("Error: Not connected to any database. Restart the program.")
+        
         # Only need one table for this because the info is dynamic.
         # Later if time history is of interest. Do both
-        df = pd.read_sql_table(table_name=self._wg._TABLE1_NAME, con=self._engine, index_col='index')
+        try:
+            df = pd.read_sql_table(table_name=self._wg._TABLE1_NAME, con=self._engine, index_col='index')
+        except ValueError:
+            print("Warning: Table not found.")
+            return
                 
         # regenerate watchlist dictionary of key ticker and value StockInfo
         # doing this way only need ticker and rank because the aggregator 
