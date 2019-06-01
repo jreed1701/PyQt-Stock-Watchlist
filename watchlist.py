@@ -3,6 +3,7 @@
 import argparse as _argparse
 import datetime as _dt
 import sys as _sys
+import yaml
 
 from PyQt5.QtWidgets import QApplication
 
@@ -57,6 +58,13 @@ class MainArgParse:
             self._manager.addStock("XYZ")
             
             self._manager.showStockDf()
+        
+        elif self._subparser_name == 'apikey':
+            
+            yaml_dict = yaml.load(open('config/api_key.yaml'), Loader=yaml.CLoader)
+        
+            print(yaml_dict['api_key'])
+        
         elif self._subparser_name == 'gui':
             self._run_gui = True
 
@@ -70,9 +78,11 @@ class MainArgParse:
         
         test = sub.add_parser('test', help='Runs inital command line only program.')
         
+        apikey = sub.add_parser('apikey', help='Print your api key in config/api_key.yaml.')
+        
         gui = sub.add_parser('gui', help='Runs the main app user interface.')
         
-        self._sub_list = [ test, gui ]
+        self._sub_list = [ test, apikey, gui ]
         
         for item in self._sub_list:
             self._add_generic_args(item)

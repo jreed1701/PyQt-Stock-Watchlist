@@ -2,6 +2,9 @@
 import os
 import pandas as pd
 from sqlalchemy import create_engine
+import sys as _sys
+import quandl as _q
+import yaml
 
 from source.stock_info_aggregator import StockInfoAggregator
 from source.watchlist_globals import WatchlistGlobals
@@ -24,6 +27,20 @@ class WatchlistManager:
                                 
         if exists is True:
             self.loadFromDatabase(self._wg._DB_NAME)
+            
+        self._setApiKey()
+        
+    def _setApiKey(self):
+        
+        yaml_dict = yaml.load(open('config/api_key.yaml'), Loader=yaml.CLoader)
+        
+        key = yaml_dict['api_key']
+        
+        if key == 'YOUR_KEY_HERE':
+            print('Error: The user needs to put their API Key for this software in config/api_key.yaml. See README.')
+            _sys.exit()
+        else:
+            _q.ApiConfig.api_key = key
         
     #def updateStockInfo():
         #Loop  

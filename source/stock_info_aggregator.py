@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import copy
-
 from source.stock_info import StockInfo
 
 class StockInfoAggregator:

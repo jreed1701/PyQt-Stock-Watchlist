@@ -3,7 +3,6 @@ from PyQt5.QtGui import QIcon
 
 from source.watchlist_manager import WatchlistManager
 from source.watchlist_command_widget import WatchlistCommandWidget
-from source.watchlist_globals import WatchlistGlobals as wg
 from source.watchlist_table_widget import WatchlistTableWidget
 
 class WatchlistApp(QMainWindow):
