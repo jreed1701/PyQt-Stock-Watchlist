@@ -26,17 +26,25 @@ class WatchlistApp(QMainWindow):
         self.setWindowTitle(self.title)
         
         self.setGeometry(self.left, self.top, self.width, self.height)
-                
+
+        self.addWidgetItems()
+
         mainMenu = self.menuBar()
-        fileMenu = mainMenu.addMenu('File')
-        
-        exitButton = QAction(QIcon('exit24.png'), 'Exit', self)
+        fileMenu = mainMenu.addMenu(' &File')
+
+        updateButton = QAction(QIcon('resources/load.png'), ' &Update', self)
+        updateButton.setShortcut('Ctrl+U')
+        updateButton.setStatusTip('Update Stock Information')
+        updateButton.triggered.connect(self._manager.updateStockInfos)
+        updateButton.triggered.connect(self._table_widget.updateTable)
+        fileMenu.addAction(updateButton)
+
+        exitButton = QAction(QIcon('exit24.png'), ' &Exit', self)
         exitButton.setShortcut('Ctrl+Q')
         exitButton.setStatusTip('Exit application')
         exitButton.triggered.connect(self.close)
         fileMenu.addAction(exitButton)
-        
-        self.addWidgetItems()
+
         
         self.show()
         
