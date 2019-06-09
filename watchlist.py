@@ -3,6 +3,7 @@
 import argparse as _argparse
 import datetime as _dt
 import sys as _sys
+import quandl
 import yaml
 
 from PyQt5.QtWidgets import QApplication
@@ -64,6 +65,28 @@ class MainArgParse:
             yaml_dict = yaml.load(open('config/api_key.yaml'), Loader=yaml.CLoader)
         
             print(yaml_dict['api_key'])
+            
+        elif self._subparser_name == 'quandl':
+            
+            yaml_dict = yaml.load(open('config/api_key.yaml'), Loader=yaml.CLoader)
+            
+            key = yaml_dict['api_key']
+            
+            if key == 'YOUR_KEY_HERE':
+                print('Error: The user needs to put their API Key for this software in config/api_key.yaml. See README.')
+                _sys.exit()
+            else:
+                quandl.ApiConfig.api_key = key
+
+            #data = quandl.Dataset('WIKI/AAPL').data(params={ 'limit': 1, 'page' : 2 })[0]
+            data = quandl.Datatable('ZACKS/P').data(params={'ticker': 'AAPL'})
+            
+            for i in data.column_names:
+                print(i)
+                
+            #print(data.data_fields())
+            
+            print(data)
         
         elif self._subparser_name == 'gui':
             self._run_gui = True
@@ -80,9 +103,11 @@ class MainArgParse:
         
         apikey = sub.add_parser('apikey', help='Print your api key in config/api_key.yaml.')
         
+        quandl = sub.add_parser('quandl', help='Arg to let user test quandl features.')
+        
         gui = sub.add_parser('gui', help='Runs the main app user interface.')
         
-        self._sub_list = [ test, apikey, gui ]
+        self._sub_list = [ test, apikey, quandl, gui ]
         
         for item in self._sub_list:
             self._add_generic_args(item)

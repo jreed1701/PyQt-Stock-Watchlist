@@ -28,8 +28,8 @@ class WatchlistManager:
         if exists is True:
             self.loadFromDatabase(self._wg._DB_NAME)
 
-        self._setApiKey()
-
+        #self._setApiKey()
+		
     def _setApiKey(self):
 
         yaml_dict = yaml.load(open('config/api_key.yaml'), Loader=yaml.CLoader)
