@@ -10,7 +10,7 @@ class StockInfoCollectorTest():
         
     def runTest(self):
         
-        if self.collector.collectSummary("amd") is True:
+        if self.collector.getAllData("amd") is True:
             print("Successful collection!")
         else:
             print("Bad ticker")
